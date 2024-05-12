@@ -1,0 +1,39 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: dev
+  namespace: apps
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  secretRef:
+    name: github-auth
+  url: https://github.com/anoopfirefox/myweatherapp
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: github
+  namespace: apps
+spec:
+  interval: 1m0s
+  secretRef:
+    name: github-auth
+  type: oci
+  url: oci://ghcr.io/anoopfirefox/myweatherapp
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: dev
+  namespace: apps
+spec:
+  interval: 1m0s
+  path: ./
+  prune: false
+  serviceAccountName: dev
+  sourceRef:
+    kind: GitRepository
+    name: dev
